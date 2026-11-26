@@ -62,6 +62,7 @@ def print_checkedin_items() -> None:
     for key, value in entries.items():
         print(f"{key} is {value}")
 
+
 def update_entry(entity: str) -> None:
     """Grab the latest entry with the entity, and flip its status. Create a new
     log entry, even if the item does not yet exist"""
@@ -72,16 +73,21 @@ def update_entry(entity: str) -> None:
         action = LogItem.Actions.OUT
     LOG_ITEMS.append(LogItem(entity, action, datetime.datetime.now()))
 
+
 def ask_for_input() -> None:
     """Ask the user for input. X to quit"""
     answer: str
     while True:
-        answer = input("Item? [x to exit and print list] ")
-        if answer == "x":
+        answer = input("Item? [X to exit and print list; L to list items] ")
+        if answer.lower() == "x":
             break
-        update_entry(answer)
+        if answer.lower() == "l":
+            print_checkedin_items()
+        else:
+            update_entry(answer)
     print_checkedin_items()
     sys.exit(0)
+
 
 def main():
     """Main program loop"""

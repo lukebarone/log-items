@@ -8,6 +8,14 @@ from models.log_items import LogItem
 log_items: list[LogItem] = []
 id_to_name = {}
 
+RED      = '\x1b[31m'
+GREEN    = '\x1b[32m'
+YELLOW   = '\x1b[33m'
+RESET    = '\x1b[0m'
+BOLD     = '\x1b[1m'
+CUR_TOP  = '\x1b[H'
+CLS      = '\x1b[2J'
+
 # TODO: Save statistics for each day
 
 def register_or_get_name(name_id: int, name: str | None= None) -> str:
@@ -26,7 +34,7 @@ def test_load_users_into_mappings() -> None:
 
 def test_list() -> None:
     """Tests that I can add items to the list and get them out"""
-    print("Testing...")
+    print(f"{YELLOW}Testing...{RESET}")
     test_load_users_into_mappings()
     update_entry(register_or_get_name(7444))
     sleep(1)
@@ -65,7 +73,7 @@ def print_checkedin_items() -> None:
     for entry in log_items:
         entries[entry.item] = str(entry.action.value)
     key: str
-    value: LogItem.Actions
+    value: str
     for key, value in entries.items():
         print(f"{key} is {value}")
 
@@ -81,19 +89,26 @@ def update_entry(entity: str) -> None:
     log_items.append(LogItem(entity, action, datetime.datetime.now()))
 
 
-def ask_for_input() -> None:
-    """Ask the user for input. X to quit"""
+def show_main_menu() -> None:
+    """Main menu"""
     answer: str
     while True:
-        answer = input("Item? [X to exit and print list; C to print checked items; L to list all items; D to clear list; S for today's stats; P for new period] ")
+        answer = input(f"{CLS}{CUR_TOP}ID Number [{BOLD}{RED}X{RESET} to exit and print list; " +
+                       f"{BOLD}{GREEN}C{RESET} to print checked items; " +
+                       f"{BOLD}{GREEN}L{RESET} to list all items; " +
+                       f"{BOLD}{RED}D{RESET} to clear list; " +
+                       f"{BOLD}{GREEN}S{RESET} for today's stats; " +
+                       f"{BOLD}{YELLOW}P{RESET} for new period] ")
         if answer.lower() == "x":
             break
         if answer == "":
             continue
         if answer.lower() == "c":
             print_checkedin_items()
+            input("Press Enter to continue...")
         elif answer.lower() == "l":
             print_log()
+            input("Press Enter to continue...")
         elif answer.lower() == "d":
             # Delete the current list, start over
             # TODO: Impliment list deletion
@@ -105,6 +120,7 @@ def ask_for_input() -> None:
         elif answer.lower() == "p":
             # Next period, mark everyone as Out
             # TODO: Impliment setting everyone as Out
+            continue
         elif int(answer) > 0:
             # Assume int
             update_entry(register_or_get_name(int(answer)))
@@ -113,11 +129,11 @@ def ask_for_input() -> None:
             update_entry(answer)
     # Finally, print and save the list so we can exit
     print_checkedin_items()
-    save_list_to_file()
+    save_to_file()
     sys.exit(0)
 
 
-def save_list_to_file() -> None:
+def save_to_file() -> None:
     """Save the existing LOG_ITEMS to a file."""
     if len(log_items) == 0:
         print("No log items to save")
@@ -132,7 +148,7 @@ def save_list_to_file() -> None:
         print("ID Mappings saved")
 
 
-def load_existing() -> bool:
+def load_from_file() -> bool:
     """Load the existing log items.
     TODO: Check if the file can be read
     TODO: Check if the unpickling did not succeed"""
@@ -156,11 +172,11 @@ def load_existing() -> bool:
 
 def main():
     """Main program loop"""
-    if not load_existing():
+    if not load_from_file():
         print("Warning: could not load existing log")
     #test_load_users_into_mappings()
     #test_list()
-    ask_for_input()
+    show_main_menu()
 
 
 if __name__ == "__main__":

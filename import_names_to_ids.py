@@ -48,7 +48,6 @@ def do_delete_id() -> None:
     name_id: str
     name_id = input("Enter ID to delete; blank to go back: ")
     id_to_name.pop(name_id, None)
-    return
 
 
 def print_list() -> None:
@@ -61,6 +60,7 @@ def print_list() -> None:
     value: str
     for key, value in id_to_name.items():
         print(f"{key}\t{value}")
+
 
 def ask_for_input() -> None:
     """Ask the user to provide the ID and a name"""
@@ -85,8 +85,14 @@ def ask_for_input() -> None:
             continue
         else:
             # Do the actual parsing
+            name: str
             name_id, name = line.split(None, maxsplit=1)
-            register_or_get_name(name_id, name)
+            try:
+                if int(name_id) > 0:
+                    register_or_get_name(int(name_id), name)
+            except ValueError: # We don't care, just go back
+                continue
+
 
 def main():
     """Main program loop"""
